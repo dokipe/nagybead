@@ -15,20 +15,25 @@ bool canTilt = false;
 
 enum Line
 {
-    HR = -1, VR = 1, TL = 2, TR = 3, BL = -3 , BR = -2
+    HR = -1, VR = 1, TL = 2, TR = 3, BL = -3 , BR = -2, CRV = 69
+};
+
+enum Color
+{
+    RED = 0, GREEN = 1, BLUE = 2
 };
 
 class Tile
 {
     unsigned ID;
     int red, green, blue;
+    vector<int> rgb;
 public:
     vector<int> sides;       /// 0 = black, 1 = red, 10 = green, 11 = yellow, 100 = blue, 101 = magenta, 110 = cyan, 111 = white
     static unsigned counter;
-    Tile(int r, int g, int b) : red(r), green(g), blue(b)
+    Tile(int r, int g, int b) : red(r), green(g), blue(b), rgb{r,g,b}
     {
         ID = counter++;
-        int T = 0,R = 0,B = 0,L = 0;
         vector<int> temp{r,g,b};
         sides = {0,0,0,0};
         for(int i = 0; i < 3; i++)
@@ -81,6 +86,10 @@ public:
     {
         return blue;
     }
+    vector<int> getRGB()
+    {
+        return rgb;
+    }
     bool operator< (const Tile& otherTile) const
     {
         if(otherTile.ID < this->ID)
@@ -130,7 +139,7 @@ unsigned Tile::counter = 0;
 
 void inputTiles(set<Tile>& tiles)
 {
-    ifstream inputFile("keszlet3.txt");
+    ifstream inputFile("keszlet2.txt");
     if(inputFile.fail())
     {
         cerr << "szar a file" << endl;
@@ -161,6 +170,50 @@ void inputTiles(set<Tile>& tiles)
         }
     }
 }
+
+class tileSet
+{
+    set<Tile> tiles;
+public:
+    tileSet(set<Tile> t)
+    {
+        tiles = t;
+    }
+    int countBy(Color C, Line shape)
+    {
+        int counter = 0;
+        for(Tile a : tiles)
+        {
+            if(a.getRGB()[C] == shape || ((shape == CRV) && pow(a.getRGB()[C],2) > 1))
+            {
+                counter++;
+            }
+        }
+        return counter;
+    }
+    bool quickCheck()
+    {
+        if(canTilt)
+        {
+            if(countBy(RED,CRV) >= 4 || countBy(GREEN,CRV) >= 4 || countBy(BLUE,CRV) >= 4)
+            {
+                return true;
+            }
+            return false;
+        }
+        else
+        {
+            if((countBy(RED,TR) > 0 && countBy(RED,TL) > 0 && countBy(RED,BL) > 0 && countBy(RED,BR) > 0)
+               || (countBy(GREEN,TR) > 0 && countBy(GREEN,TL) > 0 && countBy(GREEN,BL) > 0 && countBy(GREEN,BR) > 0)
+               || (countBy(BLUE,TR) > 0 && countBy(BLUE,TL) > 0 && countBy(BLUE,BL) > 0 && countBy(BLUE,BR) > 0))
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+};
+
 
 class Graph
 {
@@ -221,6 +274,12 @@ int main()
 {
     set<Tile> tiles;
     inputTiles(tiles);
+    tileSet T(tiles);
+    if(!T.quickCheck())
+    {
+        cout << "Nem lehetseges hurkot kesziteni.";
+        return 0;
+    }
 //    Graph g;
 //    createBlueGraph(g,tiles);
 //    cout << g;
