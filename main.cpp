@@ -12,10 +12,11 @@ using namespace std;
 /// HR VR TR TL BL BR
 
 bool canTilt = false;
+int redValue, greenValue, blueValue;
 
 enum Line
 {
-    HR = -1, VR = 1, TL = 2, TR = 3, BL = -3 , BR = -2, CRV = 69
+    HR = -1, VR = 1, TL = 2, TR = 3, BL = 4 , BR = 5, CRV = 69, LN = 420
 };
 
 enum Color
@@ -51,12 +52,12 @@ public:
             if(temp[i] == TL)
             {
                 sides[0] += pow(10,i);
-                sides[1] += pow(10,i);
+                sides[3] += pow(10,i);
             }
             if(temp[i] == TR)
             {
                 sides[0] += pow(10,i);
-                sides[3] += pow(10,i);
+                sides[1] += pow(10,i);
             }
             if(temp[i] == BR)
             {
@@ -96,6 +97,7 @@ public:
         {
             return true;
         }
+        return false;
     }
     bool operator!= (const Tile& otherTile) const
     {
@@ -110,14 +112,15 @@ public:
         {
             return true;
         }
+        return false;
     }
-    bool canConnect(const Tile& otherTile, int Color) const /// 1 = red, 10 = green, 100 = blue
+    bool canConnect(const Tile& otherTile, int Color) const /// RED GREEN BLUE
     {
+        Color = pow(10,Color);
         if(canTilt)
         {
             for(int i = 0; i < 4; i++)
             {
-                cout << (otherTile.sides[i]/Color) % 10 << " ";
                 for(int j = 0; j < 4; j++)
                 {
                     if((otherTile.sides[i]/Color) % 10 > 0 && (this->sides[j]/Color) % 10 > 0 && otherTile.sides[i] == this->sides[j])
@@ -133,6 +136,36 @@ public:
         }
         return false;
     }
+    void tilt(int color, int shape) /// RED GREEN BLUE ||| HR VR TL TR BR BL
+    {
+        while(rgb[color] != shape)
+        {
+            for(int i = 0; i < 3; i++)
+            {
+                if(rgb[i] < 2)
+                {
+                    rgb[i] *= -1;
+                }
+                if(rgb[i] == 5)
+                {
+                    rgb[i] = 2;
+                }
+                else
+                {
+                    rgb[i]++;
+                }
+            }
+            int last = sides[3];
+            for(int i = 0; i < 4; i++)
+            {
+                sides[i+1] = sides[i];
+            }
+            sides[0] = last;
+            red = rgb[0];
+            green = rgb[1];
+            blue = rgb[2];
+        }
+    }
 };
 
 unsigned Tile::counter = 0;
@@ -145,6 +178,13 @@ void inputTiles(set<Tile>& tiles)
         cerr << "szar a file" << endl;
         return;
     }
+    string cValue;
+    getline(inputFile,cValue,';');
+    redValue = atoi(cValue.c_str());
+    getline(inputFile,cValue,';');
+    greenValue = atoi(cValue.c_str());
+    getline(inputFile,cValue);
+    blueValue = atoi(cValue.c_str());
     string canRotate;
     getline(inputFile, canRotate);
     if(canRotate == "yes")
@@ -184,7 +224,7 @@ public:
         int counter = 0;
         for(Tile a : tiles)
         {
-            if(a.getRGB()[C] == shape || ((shape == CRV) && pow(a.getRGB()[C],2) > 1))
+            if(a.getRGB()[C] == shape || ((shape == CRV) && a.getRGB()[C] > 1) || ((shape == LN) && pow(a.getRGB()[C],2) == 1))
             {
                 counter++;
             }
@@ -214,6 +254,31 @@ public:
     }
 };
 
+class loopTile
+{
+public:
+    Tile T, leftT, rightT;
+    int leftLoc = -1, rightLoc = -1; /// 0 = top, 1 = right, 2 = bot, 3 = left
+};
+
+
+class Loop
+{
+protected:
+    list<loopTile> addedTiles;
+public:
+    bool isLoop()
+    {
+        for(auto a : addedTiles)
+        {
+            if(a.leftLoc == -1 || a.rightLoc == -1)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
 
 class Graph
 {
@@ -237,15 +302,14 @@ public:
 
 bool isMember(vector<Tile> b, Tile a)
 {
-    bool ret = false;
     for(unsigned i = 0; i < b.size(); i++)
     {
         if(a == b[i])
         {
-            ret = true;
+            return true;
         }
     }
-    return ret;
+    return false;
 }
 
 void createBlueGraph(Graph& g, set<Tile> tiles)
@@ -280,6 +344,10 @@ int main()
         cout << "Nem lehetseges hurkot kesziteni.";
         return 0;
     }
+    vector<int> redz{T.countBy(RED,CRV),T.countBy(RED,LN),T.countBy(RED,HR),T.countBy(RED,VR),T.countBy(RED,TR),T.countBy(RED,TL),T.countBy(RED,BL),T.countBy(RED,BR)};
+    vector<int> greenz{T.countBy(GREEN,CRV),T.countBy(GREEN,LN),T.countBy(GREEN,HR),T.countBy(GREEN,VR),T.countBy(GREEN,TR),T.countBy(GREEN,TL),T.countBy(GREEN,BL),T.countBy(GREEN,BR)};
+    vector<int> bluez{T.countBy(BLUE,CRV),T.countBy(BLUE,LN),T.countBy(BLUE,HR),T.countBy(BLUE,VR),T.countBy(BLUE,TR),T.countBy(BLUE,TL),T.countBy(BLUE,BL),T.countBy(BLUE,BR)};
+    /// KANYAROK EGYENESEK TR TL BL BR
 //    Graph g;
 //    createBlueGraph(g,tiles);
 //    cout << g;
