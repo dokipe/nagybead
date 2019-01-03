@@ -349,7 +349,7 @@ int main()
     vector<int> bluez{T.countBy(BLUE,CRV),T.countBy(BLUE,LN),T.countBy(BLUE,HR),T.countBy(BLUE,VR),T.countBy(BLUE,TR),T.countBy(BLUE,TL),T.countBy(BLUE,BL),T.countBy(BLUE,BR)};
     /// KANYAROK EGYENESEK TR TL BL BR
 //    Graph g;
-//    createBlueGraph(g,tiles);
+//    createBlueGraph(g,tiles);c
 //    cout << g;
     return 0;
 }
