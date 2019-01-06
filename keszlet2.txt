@@ -1,0 +1,15 @@
+a szükséges adatokon kívül
+majd minden mást szedjetek ki
+
+[piros értéke];[zöld értéke];[kék értéke]
+["yes" vagy "no" h van e forgatás]
+[csempén a piros];[csempén a zöld];[csempén kék];[darabszám]
+[csempén a piros];[csempén a zöld];[csempén kék];[darabszám]
+[csempén a piros];[csempén a zöld];[csempén kék];[darabszám]
+stb...
+HR = -1, VR = 1, TL = 2, TR = 3, BR = 4 , BL = 5
+
+pl:
+1;1;1
+yes
+3;3;5;24
