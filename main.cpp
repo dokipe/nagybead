@@ -592,7 +592,7 @@ vector<Tile> calculateBestLoop(vector<int> stats, Color C, tileSet allSet, vecto
         TBR = ((stats[0]-stats[0]%4)-canDoFour*(((stats[0]-stats[0]%4)-4)%8))/4-1;
         VERTI = (stats[1]-(stats[1]%2))/2;
         HORI = 0;
-        if(!canDoFour)
+        if(!canDoFour && TTR%2 == 1)
         {
             TTL += 1;
             TBR += 1;
@@ -737,7 +737,7 @@ vector<Tile> calculateBestLoop(vector<int> stats, Color C, tileSet allSet, vecto
     XX--;
     coordz.push_back(pair<int,int>(XX,YY));
     Tile thirdNextTile = allSet.findBy(C,TL,koniKoli,koniLoki);
-//    cout << HORI << " " << VERTI << " " << TTL << " " << TTR << " " << TBR << " " << TBL << endl;
+ //   cout << HORI << " " << VERTI << " " << TTL << " " << TTR << " " << TBR << " " << TBL << endl;
     while((TTL > 0 && TBR > 0 && canDo2) || verti > 0)
     {
 
@@ -976,6 +976,20 @@ ostream& operator<<(std::ostream& os, const vector<Tile>& asd)
     return os;
 }
 
+void writeFile(vector<Tile> tilez)
+{
+    ofstream KF("output.txt");
+    for(unsigned i = 0; i < tilez.size(); i++)
+    {
+        for(unsigned j = 0; j < 3; j++)
+        {
+            KF << tilez[i].rgb[j] << ";";
+        }
+        KF << endl << coordz[i].first << ";" << coordz[i].second << endl;
+    }
+    return;
+}
+
 int main()
 {
     set<Tile> tiles;
@@ -1023,6 +1037,7 @@ int main()
     }
     cout << "Az utvonal: " << endl;
     cout << eredmeny << endl;
+    writeFile(eredmeny);
     cout << "A hurok hossza: ";
     cout << coordz.size() << " csempe" << endl;
     cout << "A pontszam: " << RESULT << endl;
